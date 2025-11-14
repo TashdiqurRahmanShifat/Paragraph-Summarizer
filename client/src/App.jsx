@@ -1,29 +1,9 @@
 import { useState } from 'react'
 import axios from 'axios'
 
-const LANGUAGES = [
-  'JavaScript',
-  'Python',
-  'Java',
-  'C++',
-  'C#',
-  'TypeScript',
-  'Go',
-  'Rust',
-  'Ruby',
-  'PHP',
-  'Swift',
-  'Kotlin',
-  'SQL',
-  'HTML',
-  'CSS',
-  'Other'
-]
-
 function App() {
-  const [code, setCode] = useState('')
-  const [language, setLanguage] = useState('JavaScript')
-  const [explanation, setExplanation] = useState('')
+  const [paragraph, setParagraph] = useState('')
+  const [summary, setSummary] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
@@ -35,7 +15,7 @@ function App() {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(explanation)
+      await navigator.clipboard.writeText(summary)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
@@ -66,25 +46,24 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!code.trim()) {
-      setError('Please enter some code to explain')
+    if (!paragraph.trim()) {
+      setError('Please enter a paragraph to summarize')
       return
     }
 
     setLoading(true)
     setError('')
-    setExplanation('')
+    setSummary('')
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001'
-      const response = await axios.post(`${apiUrl}/api/explain-code`, {
-        code,
-        language: language.toLowerCase()
+      const response = await axios.post(`${apiUrl}/api/summarize-paragraph`, {
+        paragraph
       })
       
-      setExplanation(response.data.explanation)
+      setSummary(response.data.summary)
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to get explanation. Please try again.')
+      setError(err.response?.data?.error || 'Failed to get summary. Please try again.')
       console.error('Error:', err)
     } finally {
       setLoading(false)
@@ -92,8 +71,8 @@ function App() {
   }
 
   const handleClear = () => {
-    setCode('')
-    setExplanation('')
+    setParagraph('')
+    setSummary('')
     setError('')
   }
 
@@ -104,7 +83,7 @@ function App() {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-3">
             <h1 className={`text-5xl font-bold ${darkMode ? 'text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text' : 'bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent'}`}>
-              Code Explanar
+              Paragraph Summarizer
             </h1>
             
             {/* Dark Mode Toggle */}
@@ -125,7 +104,7 @@ function App() {
             </button>
           </div>
           <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Understand any code in seconds with AI-powered explanations
+            Summarize any paragraph in seconds with AI-powered intelligence
           </p>
         </div>
 
@@ -135,30 +114,13 @@ function App() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className={`block text-sm font-semibold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Programming Language
-                </label>
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-200 bg-gray-50'}`}
-                >
-                  {LANGUAGES.map((lang) => (
-                    <option key={lang} value={lang}>
-                      {lang}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className={`block text-sm font-semibold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Paste Your Code
+                  Paste Your Paragraph
                 </label>
                 <textarea
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="Paste your code here..."
-                  rows="16"
+                  value={paragraph}
+                  onChange={(e) => setParagraph(e.target.value)}
+                  placeholder="Paste your paragraph here..."
+                  rows="20"
                   className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-mono text-sm resize-none ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-200 bg-gray-50'}`}
                 />
               </div>
@@ -184,7 +146,7 @@ function App() {
                       Analyzing...
                     </span>
                   ) : (
-                    '✨ Explain Code'
+                    '✨ Summarize'
                   )}
                 </button>
                 <button
@@ -202,10 +164,10 @@ function App() {
           <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-xl p-8 border`}>
             <div className="flex items-center justify-between mb-4">
               <h2 className={`text-2xl font-bold flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                <span className="mr-2">📖</span>
-                Explanation
+                <span className="mr-2">📝</span>
+                Summary
               </h2>
-              {explanation && (
+              {summary && (
                 <button
                   onClick={handleCopy}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
@@ -230,11 +192,11 @@ function App() {
               )}
             </div>
             
-            {!explanation && !loading && (
+            {!summary && !loading && (
               <div className="flex flex-col items-center justify-center h-96 text-center">
                 <div className="text-6xl mb-4">💡</div>
                 <p className="text-gray-400 text-lg">
-                  Your code explanation will appear here
+                  Your paragraph summary will appear here
                 </p>
               </div>
             )}
@@ -252,13 +214,13 @@ function App() {
               </div>
             )}
 
-            {explanation && (
+            {summary && (
               <div className="max-w-none overflow-auto max-h-[600px]">
                 <div className={`rounded-lg p-6 border ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-100'}`}>
                   <div 
                     className={`leading-relaxed whitespace-pre-wrap ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}
                     dangerouslySetInnerHTML={{
-                      __html: formatExplanation(explanation)
+                      __html: formatExplanation(summary)
                     }}
                   />
                 </div>

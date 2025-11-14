@@ -34,21 +34,21 @@ const client = new OpenAI({
     apiKey: process.env.NEBIUS_API_KEY
 })
 
-app.post("/api/explain-code", async (req,res) => {
+app.post("/api/summarize-paragraph", async (req,res) => {
     try{
-        const {code,language}=req.body; // Destructure code and language from request body
-        if(!code || !language){
-            return res.status(400).json({ error:"Code and Language are required fields." });
+        const {paragraph}=req.body; // Destructure paragraph from request body
+        if(!paragraph){
+            return res.status(400).json({ error:"Paragraph is required." });
         }
 
         const messages=[
             {
                 role:"system",
-                content:"You are a code explanation assistant. Provide clear, concise explanations that fit within 2000 tokens. Focus on the most important aspects and be direct."
+                content:"You are a paragraph summarization assistant. Provide clear, concise summaries that capture the key points and main ideas. Keep summaries within 2000 tokens. Be direct and focus on the most important information."
             },
             {
                 role:"user",
-                content:`Explain the following ${language || "" } code in detail:\n\n\`\`\`${language || ""}\n${code}\n\`\`\``
+                content:`Summarize the following paragraph in a clear and concise manner, highlighting the key points:\n\n${paragraph}`
             }
         ];
 
@@ -59,14 +59,14 @@ app.post("/api/explain-code", async (req,res) => {
             temperature:0.3, // Lower temperature for more focused responses
         });
 
-        const explanation=response.choices[0].message.content;
-        if(!explanation){
-            return res.status(500).json({ error:"Failed to generate explanation." });
+        const summary=response.choices[0].message.content;
+        if(!summary){
+            return res.status(500).json({ error:"Failed to generate summary." });
         }
         
-        res.json({explanation,language:language || "unknown"}); // Send back the explanation and language
+        res.json({summary}); // Send back the summary
     } catch(error){
-        console.error("Error in /api/explain-code:",error);
+        console.error("Error in /api/summarize-paragraph:",error);
         res.status(500).json({ error:"Internal Server Error", details:error.message });
     }
 })
