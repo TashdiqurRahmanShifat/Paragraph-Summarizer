@@ -2,7 +2,7 @@
 
 AI-powered paragraph summarization tool that helps you get concise summaries of any text in seconds.
 
-🔗 **Live Demo**: [code-explannar-9baj.vercel.app](https://paragraph-summarizer-u2cs.vercel.app)
+🔗 **Live Demo**: [paragraph-summarizer-u2cs.vercel.app](https://paragraph-summarizer-u2cs.vercel.app)
 
 ## Features
 
